@@ -10,55 +10,45 @@ namespace OnlineStore.Repositories.CategoryRepository
         {
         }
 
-        public async Task<List<Category>> AddCategory(Category category)
+        public async Task<int> AddCategory(Category category)
         {
-            _context.Categories.Add(category);
+            await _context.AddAsync(category);
             await _context.SaveChangesAsync();
-            return await _context.Categories.ToListAsync();
+            return category.Id;
         }
 
-        public async Task<List<Category>?> DeleteCategory(int id)
+        public async Task<Category> DeleteCategory(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var categoryToDelete = await _context.Categories.FirstOrDefaultAsync(x => x.Id == id);
+            if (categoryToDelete != null)
             {
-                return null;
+                _context.Categories.Remove(categoryToDelete);
+                _context.SaveChanges();
+                return categoryToDelete;
             }
-
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
-
-            return await _context.Categories.ToListAsync();
+            return null;
         }
 
         public async Task<List<Category>> GetAll()
         {
-            return await _context.Categories.ToListAsync();
+            return await _context.Categories.ToListAsync(); 
         }
 
-        public async Task<Category?> GetById(int id)
+        public async Task<Category> GetById(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+           /* if (category == null)
             {
-                return null;
-            }
+                throw new Exception("Category is not exist");
+            }*/
             return category;
         }
 
-        public async Task<List<Category>?> Update(int id, Category request)
+        public async Task<int> Update(Category request)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-            {
-                return null;
-            }
-
-            category.Name = request.Name;
-            category.Description = request.Description;
-
+           _context.Categories.Update(request);
             await _context.SaveChangesAsync();
-            return await _context.Categories.ToListAsync();
+            return request.Id;
         }
     }
 }

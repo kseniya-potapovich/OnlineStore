@@ -1,68 +1,60 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using OnlineStore.Data;
+using OnlineStore.DTO;
+using OnlineStore.Repositories.CategoryRepository;
 
 namespace OnlineStore.Services.CategoryService
 {
     public class CategoryService : ICategoryService
     {
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
 
-        private readonly OnlineStoreDbContext _dbContext;
-
-        public CategoryService(OnlineStoreDbContext dbContext)
+        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper)
         {
-            _dbContext = dbContext;
+            _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
-        public async Task<List<Category>> AddCategory(Category category)
+        public async Task<int> AddCategory(CreateCategoryDto category)
         {
-            _dbContext.Categories.Add(category);
-            await _dbContext.SaveChangesAsync();
-            return await _dbContext.Categories.ToListAsync();
-        }
-
-        public async Task<List<Category>?> DeleteCategory(int id)
-        {
-            var category = await _dbContext.Categories.FindAsync(id);
-            if (category == null)
+            var existedCategory = await _categoryRepository.GetById(category.Id);
+            if (existedCategory != null)
             {
-                return null;
+                throw new Exception("Category exists");
             }
-
-            _dbContext.Categories.Remove(category);
-            await _dbContext.SaveChangesAsync();
-
-            return await _dbContext.Categories.ToListAsync();
+            var categoryToAdd = _mapper.Map<Category>(category);
+            return await _categoryRepository.AddCategory(categoryToAdd);
         }
 
-        public async Task<List<Category>> GetAll()
+        public async Task<GetCategoryDto> DeleteCategory(int id)
         {
-            return await _dbContext.Categories.ToListAsync();
+            var categoryToRemove = await _categoryRepository.DeleteCategory(id);
+            return _mapper.Map<GetCategoryDto>(categoryToRemove);
         }
 
-        public async Task<Category?> GetById(int id)
+        public async Task<List<GetCategoryDto>> GetAll()
         {
-            var category = await _dbContext.Categories.FindAsync(id);
-            if (category == null)
+            var categories = await _categoryRepository.GetAll();
+            return _mapper.Map<List<GetCategoryDto>>(categories);
+        }
+
+        public async Task<GetCategoryDto> GetById(int id)
+        {
+            var categoryToFind = await _categoryRepository.GetById(id);
+            return _mapper.Map<GetCategoryDto>(categoryToFind);
+        }
+
+        public async Task<int> Update(CreateCategoryDto request)
+        {
+            var categoryToUpdate = await _categoryRepository.GetById(request.Id);
+            if (categoryToUpdate == null)
             {
-                return null;
+                throw new Exception("Category is not exist");
             }
-            return category;
-        }
-
-        public async Task<List<Category>?> Update(int id, Category request)
-        {
-            var category = await _dbContext.Categories.FindAsync(id);
-            if (category == null)
-            {
-                return null;
-            }
-
-            category.Name = request.Name;
-            category.Description = request.Description;
-
-            await _dbContext.SaveChangesAsync();
-
-            return await _dbContext.Categories.ToListAsync();
+            categoryToUpdate = _mapper.Map<Category>(categoryToUpdate);
+            return await _categoryRepository.Update(categoryToUpdate);
         }
     }
 }

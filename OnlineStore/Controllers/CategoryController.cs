@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OnlineStore.DTO;
 using OnlineStore.Models;
 using OnlineStore.Services.CategoryService;
 
@@ -17,51 +18,33 @@ namespace OnlineStore.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Category>>> GetAll()
+        public async Task<ActionResult<List<GetCategoryDto>>> GetAll()
         {
-            return await _categoryService.GetAll(); 
+            return await _categoryService.GetAll();
         }
 
         [HttpGet("GetById")]
-        public async Task<ActionResult<Category>> GetById(int id)
+        public async Task<ActionResult<GetCategoryDto>> GetById(int id)
         {
-            var result = await _categoryService.GetById(id);
-            if (result == null)
-            {
-                return NotFound("No such category exists");
-            }
-            return result;
+          return await _categoryService.GetById(id);
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Category>>> AddCategory(Category category)
+        public async Task<ActionResult<int>> AddCategory([FromBody] CreateCategoryDto category)
         {
-            var result = await _categoryService.AddCategory(category);
-            return result;
+            return await _categoryService.AddCategory(category);
         }
 
         [HttpPut]
-        public async Task<ActionResult<List<Category>>> Update(int id, Category request)
+        public async Task<ActionResult<int>> Update(CreateCategoryDto request)
         {
-            var result = await _categoryService.Update(id, request);
-            if (result == null)
-            {
-                return NotFound("No such category exists");
-            }
-
-            return result;
+            return await _categoryService.Update(request);
         }
 
         [HttpDelete]
-        public async Task<ActionResult<List<Category>>> DeleteCategore(int id)
+        public async Task<ActionResult<GetCategoryDto>> DeleteCategore(int id)
         {
-            var result = await _categoryService.DeleteCategory(id);
-            if (result == null)
-            {
-                return NotFound("No such category exists");
-            }
-
-            return result;
+            return await _categoryService.DeleteCategory(id);
         }
     }
 }

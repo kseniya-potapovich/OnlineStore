@@ -4,12 +4,12 @@
     {
         Task<List<Category>> GetAll();
 
-        Task<Category?> GetById(int id);
+        Task<Category> GetById(int id);
 
-        Task<List<Category>> AddCategory(Category category);
+        Task<int> AddCategory(Category category);
 
-        Task<List<Category>?> Update(int id, Category request);
+        Task<int> Update(Category request);
 
-        Task<List<Category>?> DeleteCategory(int id);
+        Task<Category> DeleteCategory(int id);
     }
 }

@@ -38,10 +38,10 @@ namespace OnlineStore.Repositories.ProductRepository
         public async Task<Product> GetById(int id)
         {
             var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            /*if (product == null)
             {
-                return null;
-            }
+                throw new Exception("Product is not exist");
+            }*/
             return product;
         }
 
