@@ -1,5 +1,7 @@
 global using OnlineStore.Models;
 using OnlineStore.Data;
+using OnlineStore.Repositories.CategoryRepository;
+using OnlineStore.Repositories.ProductRepository;
 using OnlineStore.Services.CategoryService;
 using OnlineStore.Services.ProductService;
 
@@ -13,7 +15,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddDbContext<OnlineStoreDbContext>();
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 var app = builder.Build();
 

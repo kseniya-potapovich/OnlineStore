@@ -1,69 +1,64 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using OnlineStore.Data;
+using OnlineStore.DTO;
+using OnlineStore.Repositories.ProductRepository;
 
 namespace OnlineStore.Services.ProductService
 {
     public class ProductService : IProductService
     {
 
-        private readonly OnlineStoreDbContext _dbContext;
+        private readonly IProductRepository _productRepository;
 
-        public ProductService(OnlineStoreDbContext dbContext)
+        private readonly IMapper _mapper;
+
+        public ProductService(IProductRepository productRepository, IMapper mapper)
         {
-            _dbContext = dbContext;
+            _productRepository = productRepository;
+            _mapper = mapper;
         }
 
-        public async Task<List<Product>> AddProduct(Product product)
+        public async Task<int> AddProduct(CreateProductDto product)
         {
-            _dbContext.Products.Add(product);
-            await _dbContext.SaveChangesAsync();
-            return await _dbContext.Products.ToListAsync();
-        }
+            var existedProduct = await _productRepository.GetById(product.Id);
 
-        public async Task<List<Product>?> DeleteProduct(int id)
-        {
-            var product = await _dbContext.Products.FindAsync(id);
-            if (product == null)
+            if (existedProduct != null)
             {
-                return null;
+                throw new Exception("Product exist");
             }
 
-             _dbContext.Products.Remove(product);
-            await _dbContext.SaveChangesAsync();
-
-            return await _dbContext.Products.ToListAsync();
+            var productToAdd = _mapper.Map<Product>(product);
+            return await _productRepository.AddProduct(productToAdd);
         }
 
-        public async Task<List<Product>> GetAll()
+        public async Task<GetProductDto> DeleteProduct(int id)
         {
-            return await _dbContext.Products.ToListAsync();
+            var productToRemove = await _productRepository.DeleteProduct(id);
+            return _mapper.Map<GetProductDto>(productToRemove);
         }
 
-        public async Task<Product?> GetById(int id)
+        public async Task<List<GetProductDto>> GetAll()
         {
-            var product = await _dbContext.Products.FindAsync(id);
-            if (product == null)
+            var products = await _productRepository.GetAll();
+            return _mapper.Map<List<GetProductDto>>(products);
+        }
+
+        public async Task<GetProductDto> GetById(int id)
+        {
+            var productToFind = await _productRepository.GetById(id);
+            return _mapper.Map<GetProductDto>(productToFind);
+        }
+
+        public async Task<int> Update(CreateProductDto request)
+        {
+            var productToUpdate = await _productRepository.GetById(request.Id);
+            if (productToUpdate == null)
             {
-                return null;
+                throw new Exception("Product is not exist");
             }
-            return product;
-        }
-
-        public async Task<List<Product>?> Update(int id, Product request)
-        {
-            var product = await _dbContext.Products.FindAsync(id);
-            if (product == null)
-            {
-                return null;
-            }
-
-            product.Name = request.Name;
-            product.Description = request.Description;
-            product.Price = request.Price;
-
-            await _dbContext.SaveChangesAsync();
-
-            return await _dbContext.Products.ToListAsync();
+            productToUpdate = _mapper.Map<Product>(productToUpdate);
+            return await _productRepository.Update(productToUpdate);
         }
     }
 }

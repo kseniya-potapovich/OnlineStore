@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OnlineStore.DTO;
 using OnlineStore.Models;
 using OnlineStore.Services.ProductService;
 
@@ -17,51 +18,33 @@ namespace OnlineStore.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<Product>>> GetAll()
+        public async Task<ActionResult<List<GetProductDto>>> GetAll()
         {
             return await _productService.GetAll();
         }
 
         [HttpGet("GetById")]
-        public async Task<ActionResult<Product>> GetById(int id)
+        public async Task<ActionResult<GetProductDto>> GetById(int id)
         {
-            var result = await _productService.GetById(id);
-            if(result == null)
-            {
-                return NotFound("No such product exists");
-            }
-            return result;
+            return await _productService.GetById(id);
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Product>>> AddProduct(Product product)
+        public async Task<ActionResult<int>> AddProduct([FromBody] CreateProductDto product)
         {
-            var result = await _productService.AddProduct(product);
-            return result;
+            return await _productService.AddProduct(product);
         }
 
         [HttpPut]
-        public async Task<ActionResult<List<Product>>> Update(int id, Product request)
+        public async Task<ActionResult<int>> Update(CreateProductDto request)
         {
-            var result = await _productService.Update(id, request);
-            if(result == null)
-            {
-                return NotFound("No such product exists");
-            }
-
-            return result;
+            return await _productService.Update(request);
         }
 
         [HttpDelete]
-        public async Task<ActionResult<List<Product>>> DeleteProduct(int id)
+        public async Task<ActionResult<GetProductDto>> DeleteProduct(int id)
         {
-            var result = await _productService.DeleteProduct(id);
-            if (result == null)
-            {
-                return NotFound("No such product exists");
-            }
-      
-            return result;
+            return await _productService.DeleteProduct(id);
         }
     }
 }

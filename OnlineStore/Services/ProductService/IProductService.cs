@@ -1,18 +1,19 @@
-﻿using OnlineStore.Models;
+﻿using OnlineStore.DTO;
+using OnlineStore.Models;
 
 namespace OnlineStore.Services.ProductService
 {
     public interface IProductService
     {
-        Task<List<Product>> GetAll();
+        Task<List<GetProductDto>> GetAll();
 
-        Task<Product?> GetById(int id);
+        Task<GetProductDto> GetById(int id);
 
-        Task<List<Product>> AddProduct(Product product);
+        Task<int> AddProduct(CreateProductDto product);
 
-        Task<List<Product>?> Update(int id, Product request);
+        Task<int> Update(CreateProductDto request);
 
-        Task<List<Product>?> DeleteProduct(int id);
+        Task<GetProductDto> DeleteProduct(int id);
 
     }
 }
